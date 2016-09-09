@@ -48,8 +48,14 @@ function cnrs_find_gallery_shortcodes($post) {
 }
 
 function cnrs_get_gallery_id_from_shortcode($shortcode) {
-    $atts = shortcode_parse_atts($shortcode);
-    return intval( $atts['id'] );
+    $id = null;
+    $idx = strpos($shortcode, 'id="');
+    if ($idx !== false) {
+        $idx += 4;
+        $id = substr($shortcode, $idx, strpos($shortcode, '"', $idx) - $idx);
+        $id = intval($id);
+    }
+    return $id;
 }
 
 function cnrs_list_galleries($posts_query) {
@@ -90,7 +96,7 @@ function cnrs_convert_galleries($posts_query) {
 
             $gallery_id = cnrs_get_gallery_id_from_shortcode($shortcode);
             $slidesJson = $wpdb->get_var( $wpdb->prepare( "SELECT slides FROM {$wpdb->prefix}new_royalsliders WHERE id = %d", $gallery_id ) );
-            
+
             $slides = json_decode($slidesJson, true);
 
             $attachment_ids = array();
